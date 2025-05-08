@@ -21,6 +21,10 @@ state_input = st.selectbox("State (2-letter code):", [
 ])
 industry_input = st.selectbox("Industry:", ["Tech", "Other"])
 benefit_count = st.slider("How many benefits does the job include?", 0, 10, 3)
+skills_length = st.slider("Estimated number of skills listed:", 1, 100, 10)
+year_input = st.slider("Year of job listing:", 2023, 2024, 2024)
+follower_count = st.number_input("Company follower count:", min_value=0, value=5000)
+employee_count = st.number_input("Company employee count:", min_value=1, value=100)
 
 # --- Submit ---
 if st.button("Estimate Salary"):
@@ -29,7 +33,11 @@ if st.button("Estimate Salary"):
         "formatted_experience_level": [experience_level],
         "state": [state_input],
         "industry": [industry_input],
-        "benefit_count": [benefit_count]
+        "benefit_count": [benefit_count],
+        "skills_length": [skills_length],
+        "year": [year_input],
+        "follower_count": [follower_count],
+        "employee_count": [employee_count]
     })
 
     try:
