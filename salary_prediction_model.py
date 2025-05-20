@@ -31,6 +31,13 @@ def suppress_stderr():
         finally:
             sys.stderr = old_stderr
 
+
+def smape(y_true, y_pred):
+    numerator = np.abs(y_pred - y_true)
+    denominator = (np.abs(y_true) + np.abs(y_pred)) / 2
+    return np.mean(numerator / np.clip(denominator, 1e-8, None)) * 100
+
+
 def load_and_prepare_data():
     jobs = pd.read_csv("data/IT_postings.csv")
     companies = pd.read_csv("data/companies.csv")
@@ -108,12 +115,51 @@ def train_and_save_pipeline():
         search.fit(X_train, y_train)
 
     best_pipeline = search.best_estimator_
+    model = best_pipeline.named_steps["model"]
 
+    # Predict on test data
+    y_pred = best_pipeline.predict(X_test)
+
+    # Evaluate performance
+    mae = mean_absolute_error(np.expm1(y_test), np.expm1(y_pred))
+    percent_errors = np.abs((y_test - y_pred) / np.clip(y_test, 1e-8, None))
+    median_pct_error = np.median(percent_errors) * 100
+
+    print(f"Test MAE: {mae:.2f}")
+    print(f"Median Absolute Percentage Error: {median_pct_error:.2f}%")
+
+
+    # Extract feature names
+    preprocessor = best_pipeline.named_steps["preprocessor"]
+    feature_names = []
+
+    # Get feature names from each transformer
+    for name, transformer, cols in preprocessor.transformers_:
+        if name == "tfidf_title":
+            feature_names += [f"tfidf_title__{w}" for w in transformer.get_feature_names_out()]
+        elif name == "tfidf_desc":
+            feature_names += [f"tfidf_desc__{w}" for w in transformer.get_feature_names_out()]
+        elif name == "onehot":
+            feature_names += transformer.get_feature_names_out(cols).tolist()
+        elif name == "num":
+            feature_names += cols
+
+    importances = model.feature_importances_
+    feature_importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "importance": importances
+    }).sort_values(by="importance", ascending=False)
+
+    print("\nTop 20 Feature Importances:")
+    print(feature_importance_df.head(20).to_string(index=False))
+
+    # Save model
     os.makedirs("model", exist_ok=True)
     with open("model/salary_prediction_pipeline.pkl", "wb") as f:
         cloudpickle.dump(best_pipeline, f)
 
     print("Model pipeline saved using cloudpickle.")
+
 
 if __name__ == "__main__":
     train_and_save_pipeline()
