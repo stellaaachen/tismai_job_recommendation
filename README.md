@@ -14,5 +14,8 @@ To run the second component, you can either:
 
 Either way you should see a streamlit webpage pop up. 
 
+Video that runs through the code: https://drive.google.com/file/d/1cWj9XyTsucThK7CiuLzdnLjhCiuOc7CK/view?usp=sharing
+
+
 
 
