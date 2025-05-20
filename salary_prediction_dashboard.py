@@ -1,20 +1,18 @@
 import streamlit as st
 import pandas as pd
-import joblib
 import numpy as np
+import cloudpickle
 
-# === Load trained pipeline ===
 @st.cache_resource
 def load_model():
-    return joblib.load("model/salary_prediction_pipeline.pkl")
+    with open("model/salary_prediction_pipeline.pkl", "rb") as f:
+        return cloudpickle.load(f)
 
 model = load_model()
 
-# === UI Header ===
-st.title("💼 Tech Job Salary Predictor")
-st.markdown("📌 *Model trained on LinkedIn job postings (2023–2024)*")
+st.title("Tech Job Salary Predictor")
+st.markdown("Model trained on LinkedIn job postings (2023–2024)*")
 
-# === U.S. States for Dropdown ===
 us_states = [
     'missing', 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL',
     'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
@@ -23,7 +21,6 @@ us_states = [
     'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ]
 
-# === Input Form ===
 with st.form("prediction_form"):
     title = st.text_input("Job Title", "Software Engineer")
     description = st.text_area("Job Description", "We are seeking a skilled software engineer with experience in Python, SQL, and cloud services.")
@@ -40,7 +37,6 @@ with st.form("prediction_form"):
 
     submitted = st.form_submit_button("Predict Salary")
 
-# === Prediction Logic ===
 if submitted:
     input_df = pd.DataFrame([{
         "title": title,
@@ -58,10 +54,9 @@ if submitted:
     try:
         log_pred_salary = model.predict(input_df)[0]
         predicted_salary = np.expm1(log_pred_salary)
-
-        st.success(f"💰 Predicted Normalized Salary: **${predicted_salary:,.2f}**")
-
+        st.success(f"Predicted Normalized Salary: **${predicted_salary:,.2f}**")
     except Exception as e:
-        st.error("⚠️ Something went wrong with the prediction.")
+        st.error("Something went wrong with the prediction.")
         st.exception(e)
+
 
