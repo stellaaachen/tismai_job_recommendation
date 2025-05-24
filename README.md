@@ -16,4 +16,4 @@ Either way you should see a streamlit webpage pop up.
 
 Video that runs through the code: https://drive.google.com/file/d/1P8PdSDMpNc8o6qcMQYCPVoRHlMVk8ErS/view?usp=sharing
 
-
+Read my report: https://drive.google.com/file/d/1XrtN9HNstsmyDsLfUOpJhFOOaLybRLr7/view?usp=sharing
